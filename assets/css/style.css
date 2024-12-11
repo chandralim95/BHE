@@ -1,0 +1,181 @@
+@import url('https://fonts.googleapis.com/css2?family=BenchNine:wght@300;400;700&family=Dancing+Script:wght@400..700&family=Gloria+Hallelujah&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Josefin+Slab:ital,wght@0,100..700;1,100..700&family=Just+Another+Hand&family=Kaushan+Script&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Mountains+of+Christmas:wght@400;700&family=Nothing+You+Could+Do&family=Patrick+Hand&family=Permanent+Marker&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Quicksand:wght@300..700&family=Raleway:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Yellowtail&display=swap');
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+*,
+:after,
+:before {
+    box-sizing: border-box
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    min-height: 100vh;
+    width: 100%;
+    overflow-y: auto;
+}
+
+/* Login */
+
+.loginSection, .discordVerificationSection {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.loginSection .login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 300px;
+}
+
+.loginSection .login-container .formBx{
+    position: absolute;
+    top: 28%;
+    left: 33%;
+    border-radius: 20px;
+    width: 30%;
+    height: 50%;
+    background: #fff;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.formBx .form {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    padding: 50px;
+    transition: 0.5s;
+}
+
+.formBx .form form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.formBx .form form h3 {
+    font-size: 1.5em;
+    /* color: #EBA937; */
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.formBx .form form input {
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 10px;
+    outline: none;
+    font-size: 16px;
+    /* border: 1px solid #333; */
+}
+
+.formBx .form form input[type="submit"] {
+    /* background: #03a9f4; */
+    border-radius: 10px;
+    background: #EBA937;
+    border: none;
+    color: #fff;
+    max-width: 100px;
+    cursor: pointer;
+}
+
+.formBx .form form .forgot {
+    color: #333;
+}
+
+.input-wrapper {
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 20px;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.result {
+    width: 100%;
+    max-width: 400px;
+    display: none;
+    text-align: center;
+}
+
+.copy-button {
+    background-color: gray;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.copy-button:hover {
+    background-color: #555;
+}
+
+.copy-button:disabled {
+    background-color: #ccc;
+}
+
+@media (max-width: 991px) {
+
+    /* Login */
+    .login-container {
+        max-width: 400px;
+        height: 650px !important;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .login-container .loginBg {
+        top: 0;
+        height: 100%;
+    }
+
+    .loginSection .login-container .formBx{
+        position: absolute;
+        top: 30%;
+        left: 0;
+        border-radius: 20px;
+        width: 50%;
+        height: 35%;
+        background: #fff;
+        z-index: 1000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .loginBg .box {
+        position: absolute;
+        width: 100%;
+        height: 150px;
+        bottom: 0;
+    }
+
+    .box.signin {
+        top: 0;
+    }
+
+    .formBx.active {
+        left: 0;
+        top: 150px;
+    }
+}
