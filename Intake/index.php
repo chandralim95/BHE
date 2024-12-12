@@ -3,8 +3,8 @@ session_start();
 
 function generateCSRFToken()
 {
-    $token = bin2hex(random_bytes(32)); 
-    $_SESSION['csrf_token'] = $token; 
+    $token = bin2hex(random_bytes(32));
+    $_SESSION['csrf_token'] = $token;
     return $token;
 }
 
@@ -25,20 +25,57 @@ if (!isset($_SESSION['csrf_token'])) {
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <title>BHE</title>
+
+    <style>
+        body {
+            background-color: gray;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .loginSection,
+        .waAuthSection {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 500px;
+        }
+
+        .formBx {
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            background: #fff;
+            z-index: 1000;
+            display: grid;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 
-<body style="background-color: gray">
+<body>
     <section class="loginSection">
         <div class="login-container">
             <div class="formBx">
                 <div class="form signinForm">
-                    <form id="singIn">
-                        <div id="apppendhere"></div>
+                    <form id="signIn">
                         <h3 style="color: gray; text-align: center;">Login</h3>
                         <label class="text text-danger" id="loginemailvalidation"></label>
                         <input id="login-email" type="text" name="loginemail" placeholder="Email">
-                        <label class=" text text-danger" id="loginpasswordvalidation"></label>
-                        <input id="login-password" type="password" name="loginpassword" placeholder="Password">
                         <input type="button" value="Login" id="btn-login" class="btn btn-primary" style="background-color: gray">
                     </form>
                 </div>
@@ -46,112 +83,80 @@ if (!isset($_SESSION['csrf_token'])) {
         </div>
     </section>
 
-    <section class="discordVerificationSection" style="display: none;">
-        <div class="container">
-            <h1>Authentication</h1>
-            <div class="input-wrapper">
-                <input type="text" id="nim-input" placeholder="NIM atau FormID" oninput="validateInput(this)">
-                <input type="hidden" id="csrf-token" value="<?php echo $csrfToken; ?>">
-            </div>
-            <div class="result" style="display: none;">
-                <input type="text" id="data-result" readonly>
-                <button class="copy-button" onclick="copyText()">Copy</button>
+    <section class="waAuthSection" style="display: none;">
+        <div class="login-container">
+            <div class="formBx">
+                <h1>Authentication via WhatsApp</h1>
+                <p>Please enter the secret number sent to your WhatsApp:</p>
+                <div class="input-wrapper">
+                    <input type="text" id="wa-code-input" placeholder="Enter Secret Number" maxlength="6">
+                    <input type="hidden" id="csrf-token" value="<?php echo $csrfToken; ?>">
+                </div>
+                <button id="btn-verify-wa" class="btn btn-primary">Verify</button>
+                <p id="wa-auth-error" class="text-danger"></p>
             </div>
         </div>
     </section>
 
     <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
-    
+
     <script>
-        $(document).ready(function () {
-            $('#btn-login').click(function () {
+        $(document).ready(function() {
+            $('#btn-login').click(function() {
                 var email = $('#login-email').val();
-                var password = $('#login-password').val();
-                
-                if (email == '' || password == '') {
-                    $('#loginemailvalidation').text('Email and password are required.');
+
+                if (email === '') {
+                    $('#loginemailvalidation').text('Email is required.');
                 } else {
                     $.ajax({
-                        url: 'auth.php',
+                        url: 'send_wa_code.php',
                         method: 'POST',
                         data: {
-                            email: email,
-                            password: password
+                            email: email
                         },
-                        success: function (response) {
+                        success: function(response) {
                             if (response === 'success') {
                                 $('.loginSection').hide();
-                                $('.discordVerificationSection').show();
+                                $('.waAuthSection').show();
                             } else {
-                                $('#loginemailvalidation').text('Invalid credentials. Please try again.');
+                                $('#loginemailvalidation').text('Failed to send WhatsApp code.');
                             }
                         },
-                        error: function () {
+                        error: function() {
+                            alert('An error occurred');
+                        }
+                    });
+                }
+            });
+
+            $('#btn-verify-wa').click(function() {
+                var waCode = $('#wa-code-input').val();
+                var csrfToken = $('#csrf-token').val();
+
+                if (waCode === '') {
+                    $('#wa-auth-error').text('Secret number is required.');
+                } else {
+                    $.ajax({
+                        url: 'verify_wa_code.php',
+                        method: 'POST',
+                        data: {
+                            code: waCode,
+                            csrf_token: csrfToken
+                        },
+                        success: function(response) {
+                            if (response === 'success') {
+                                window.location.href = 'dashboard.php';
+                            } else {
+                                $('#wa-auth-error').text('Invalid secret number. Please try again.');
+                            }
+                        },
+                        error: function() {
                             alert('An error occurred. Please try again.');
                         }
                     });
                 }
             });
-
-            $('#nim-input').on('input', function () {
-                var nim = $(this).val();
-                var nimLength = nim.length;
-                var csrfToken = $('#csrf-token').val();
-
-                if (nimLength === 8 || nimLength === 10) {
-                    var searchType = nimLength === 8 ? 'form_number' : 'nim';
-
-                    $.ajax({
-                        url: 'search.php',
-                        method: 'GET',
-                        data: {
-                            searchType: searchType,
-                            nim: nim,
-                            csrf_token: csrfToken
-                        },
-                        headers: {
-                            'X-CSRF-TOKEN': csrfToken
-                        },
-                        success: function (data) {
-                            if (data !== '') {
-                                $('#data-result').val(data);
-                                $('.result').show();
-                            } else {
-                                $('.result').hide();
-                            }
-                        }
-                    });
-                } else {
-                    $('.result').hide();
-                }
-            });
         });
-
-        function validateInput(input) {
-            // Hapus karakter selain angka
-            input.value = input.value.replace(/\D/g, '');
-            
-            // Batasi panjang input menjadi maksimal 10 digit
-            if (input.value.length > 10) {
-                input.value = input.value.slice(0, 10);
-            }
-        }
-
-        function copyText() {
-            var resultInput = document.getElementById("data-result");
-            resultInput.select();
-            document.execCommand("copy");
-
-            var copyButton = document.querySelector(".copy-button");
-
-            if (document.getSelection().toString() === resultInput.value) {
-                copyButton.innerText = "Copied!";
-                copyButton.disabled = true;
-            } else {
-                copyButton.innerText = "Copy";
-                copyButton.disabled = false;
-            }
-        }
     </script>
 </body>
 

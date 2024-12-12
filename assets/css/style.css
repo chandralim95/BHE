@@ -51,6 +51,27 @@ body {
     align-items: center;
 }
 
+.waAuthSection .login-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 300px;
+}
+
+.waAuthSection .login-container .formBx{
+    position: absolute;
+    top: 28%;
+    left: 33%;
+    border-radius: 20px;
+    width: 30%;
+    height: 50%;
+    background: #fff;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .formBx .form {
     position: absolute;
     left: 0;
