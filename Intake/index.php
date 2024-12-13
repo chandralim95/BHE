@@ -64,6 +64,21 @@ if (!isset($_SESSION['csrf_token'])) {
             padding: 30px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
+        .waAuthSection .login-container .formBx {
+    position: absolute;
+    top: 28%;
+    left: 33%;
+    border-radius: 20px;
+    width: 30%;
+    height: 50%;
+    background: #fff;
+    z-index: 1000;
+    display: grid
+;
+    justify-content: center;
+    align-items: center;
+}
     </style>
 </head>
 
