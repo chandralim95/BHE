@@ -15,20 +15,26 @@ try {
     $conn = new PDO("sqlsrv:Server=$servername;Database=$dbname", null, null, array(
         PDO::SQLSRV_ATTR_ENCODING => PDO::SQLSRV_ENCODING_UTF8
     ));
-    
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     die("Connection failed: " . $e->getMessage());
 }
 
-$query = "SELECT UniversityID, UniversityName FROM Universities";
+$query = "SELECT 
+    s.StudentID, 
+    s.StudentName, 
+    s.StudentNIM, 
+    m.MajorName, 
+    u.UniversityName 
+FROM Students s
+JOIN Majors m ON s.MajorID = m.MajorID
+JOIN Universities u ON s.UniversityID = u.UniversityID";
 
 $stmt = $conn->query($query);
 
 if ($stmt === false) {
     die("Error executing query.");
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -81,7 +87,10 @@ if ($stmt === false) {
     <div class="dropdown-container">
         <select class="form-select" id="dropdown1" aria-label="Dropdown 1">
             <option value="" selected>Pilih Universitas</option>
-            <?php while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) : ?>
+            <?php 
+            $universityQuery = "SELECT UniversityID, UniversityName FROM Universities";
+            $universityStmt = $conn->query($universityQuery);
+            while ($row = $universityStmt->fetch(PDO::FETCH_ASSOC)) : ?>
                 <option value="<?= $row['UniversityID'] ?>">
                     <?= $row['UniversityName'] ?>
                 </option>
@@ -105,18 +114,91 @@ if ($stmt === false) {
                     <th>Nama</th>
                     <th>NIM</th>
                     <th>Jurusan</th>
-                    <th>Tahun</th>
                     <th>Universitas</th>
                 </tr>
             </thead>
             <tbody id="student-table">
-                
+                <?php $i = 1; while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) : ?>
+                    <tr>
+                        <td><?= $i++; ?></td>
+                        <td><?= htmlspecialchars($row['StudentName']) ?></td>
+                        <td><?= htmlspecialchars($row['StudentNIM']) ?></td>
+                        <td><?= htmlspecialchars($row['MajorName']) ?></td>
+                        <td><?= htmlspecialchars($row['UniversityName']) ?></td>
+                    </tr>
+                <?php endwhile; ?>
             </tbody>
         </table>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
     <script src="../assets/js/bootstrap.bundle.min.js"></script>
+    <script>
+    $(document).ready(function () {
+        //Kalau dropdown 1 dipilih
+        $('#dropdown1').on('change', function () {
+            const universityId = $(this).val();
+
+            $('#dropdown2').html('<option value="" selected>Pilih Tahun</option>');
+            $('#student-table').html('<tr><td colspan="5">No data found</td></tr>');
+
+            if (universityId) {
+                //Kalau univ dipilih
+                $.ajax({
+                    url: 'get_years.php',
+                    type: 'GET',
+                    data: { university_id: universityId },
+                    success: function (response) {
+                        const yearDropdown = $('#dropdown2');
+                        yearDropdown.empty().append('<option value="" selected>Pilih Tahun</option>');
+                        if (response.length > 0) {
+                            response.forEach((year) => {
+                                const option = `<option value="${year.YearID}">${year.Year}</option>`;
+                                yearDropdown.append(option);
+                            });
+                        } else {
+                            yearDropdown.append('<option value="">No data available</option>');
+                        }
+                    },
+                    error: function () {
+                        alert('Failed to fetch years.');
+                    }
+                });
+
+                //Ambil semua mahasiswa berdasarkan univ yang dipilih
+                $.ajax({
+                    url: 'get_students.php',
+                    type: 'GET',
+                    data: { university_id: universityId },
+                    success: function (response) {
+                        const studentTable = $('#student-table');
+                        studentTable.empty();
+                        if (response.length > 0) {
+                            response.forEach((student, index) => {
+                                const row = `
+                                    <tr>
+                                        <td>${index + 1}</td>
+                                        <td>${student.StudentName}</td>
+                                        <td>${student.StudentNIM}</td>
+                                        <td>${student.MajorName}</td>
+                                        <td>${student.UniversityName}</td>
+                                    </tr>
+                                `;
+                                studentTable.append(row);
+                            });
+                        } else {
+                            studentTable.append('<tr><td colspan="5">No data found</td></tr>');
+                        }
+                    },
+                    error: function () {
+                        alert('Failed to fetch students.');
+                    }
+                });
+            }
+        });
+    });
+</script>
+
 </body>
 
 </html>
