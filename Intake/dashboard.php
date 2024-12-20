@@ -6,10 +6,10 @@ if (!isset($_SESSION['csrf_token'])) {
     exit;
 }
 
-$servername = "LAPTOP-DLPOU7KE"; 
-$username = "LAPTOP-DLPOU7KE\ASUS"; 
-$password = ""; 
-$dbname = "BHE"; 
+$servername = "LAPTOP-DLPOU7KE";
+$username = "LAPTOP-DLPOU7KE\ASUS";
+$password = "";
+$dbname = "BHE";
 
 try {
     $conn = new PDO("sqlsrv:Server=$servername;Database=$dbname", null, null, array(
@@ -87,7 +87,7 @@ if ($stmt === false) {
     <div class="dropdown-container">
         <select class="form-select" id="dropdown1" aria-label="Dropdown 1">
             <option value="" selected>Pilih Universitas</option>
-            <?php 
+            <?php
             $universityQuery = "SELECT UniversityID, UniversityName FROM Universities";
             $universityStmt = $conn->query($universityQuery);
             while ($row = $universityStmt->fetch(PDO::FETCH_ASSOC)) : ?>
@@ -118,7 +118,8 @@ if ($stmt === false) {
                 </tr>
             </thead>
             <tbody id="student-table">
-                <?php $i = 1; while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) : ?>
+                <?php $i = 1;
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) : ?>
                     <tr>
                         <td><?= $i++; ?></td>
                         <td><?= htmlspecialchars($row['StudentName']) ?></td>
@@ -134,70 +135,108 @@ if ($stmt === false) {
     <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
     <script src="../assets/js/bootstrap.bundle.min.js"></script>
     <script>
-    $(document).ready(function () {
-        //Kalau dropdown 1 dipilih
-        $('#dropdown1').on('change', function () {
-            const universityId = $(this).val();
+        $(document).ready(function() {
+            //Kalau dropdown 1 atau dropdown 2 dipilih
+            $('#dropdown1, #dropdown2').on('change', function() {
+                const universityId = $('#dropdown1').val();
+                const yearId = $('#dropdown2').val();
 
-            $('#dropdown2').html('<option value="" selected>Pilih Tahun</option>');
-            $('#student-table').html('<tr><td colspan="5">No data found</td></tr>');
+                //Reset tabel
+                $('#student-table').html('<tr><td colspan="5">No data found</td></tr>');
 
-            if (universityId) {
-                //Kalau univ dipilih
-                $.ajax({
-                    url: 'get_years.php',
-                    type: 'GET',
-                    data: { university_id: universityId },
-                    success: function (response) {
-                        const yearDropdown = $('#dropdown2');
-                        yearDropdown.empty().append('<option value="" selected>Pilih Tahun</option>');
-                        if (response.length > 0) {
-                            response.forEach((year) => {
-                                const option = `<option value="${year.YearID}">${year.Year}</option>`;
-                                yearDropdown.append(option);
-                            });
-                        } else {
-                            yearDropdown.append('<option value="">No data available</option>');
-                        }
-                    },
-                    error: function () {
-                        alert('Failed to fetch years.');
+                if (universityId) {
+                    //Ambil semua tahun berdasarkan universitas yang dipilih (untuk dropdown 1)
+                    if ($(this).attr('id') === 'dropdown1') {
+                        $.ajax({
+                            url: 'get_years.php',
+                            type: 'GET',
+                            data: {
+                                university_id: universityId
+                            },
+                            success: function(response) {
+                                const yearDropdown = $('#dropdown2');
+                                yearDropdown.empty().append('<option value="" selected>Pilih Tahun</option>');
+                                if (response.length > 0) {
+                                    response.forEach((year) => {
+                                        const option = `<option value="${year.YearID}">${year.Year}</option>`;
+                                        yearDropdown.append(option);
+                                    });
+                                } else {
+                                    yearDropdown.append('<option value="">No data available</option>');
+                                }
+                            },
+                            error: function() {
+                                alert('Failed to fetch years.');
+                            }
+                        });
                     }
-                });
 
-                //Ambil semua mahasiswa berdasarkan univ yang dipilih
-                $.ajax({
-                    url: 'get_students.php',
-                    type: 'GET',
-                    data: { university_id: universityId },
-                    success: function (response) {
-                        const studentTable = $('#student-table');
-                        studentTable.empty();
-                        if (response.length > 0) {
-                            response.forEach((student, index) => {
-                                const row = `
-                                    <tr>
-                                        <td>${index + 1}</td>
-                                        <td>${student.StudentName}</td>
-                                        <td>${student.StudentNIM}</td>
-                                        <td>${student.MajorName}</td>
-                                        <td>${student.UniversityName}</td>
-                                    </tr>
-                                `;
-                                studentTable.append(row);
-                            });
-                        } else {
-                            studentTable.append('<tr><td colspan="5">No data found</td></tr>');
-                        }
-                    },
-                    error: function () {
-                        alert('Failed to fetch students.');
+                    if (universityId && yearId) {
+                        $.ajax({
+                            url: 'get_majors.php',
+                            type: 'GET',
+                            data: {
+                                university_id: universityId,
+                                year_id: yearId
+                            },
+                            success: function(response) {
+                                const majorDropdown = $('#dropdown3');
+                                majorDropdown.empty().append('<option value="" selected>Pilih Jurusan</option>');
+                                if (response.length > 0) {
+                                    response.forEach(major => {
+                                        const option = `<option value="${major.MajorID}">${major.MajorName}</option>`;
+                                        majorDropdown.append(option);
+                                    });
+                                } else {
+                                    majorDropdown.append('<option value="">No data available</option>');
+                                }
+                            },
+                            error: function() {
+                                alert('Failed to fetch majors.');
+                            }
+                        });
                     }
-                });
-            }
+
+                    //Ambil semua mahasiswa berdasarkan universitas dan (jika ada) tahun yang dipilih
+                    const requestData = {
+                        university_id: universityId
+                    };
+                    if (yearId) {
+                        requestData.year_id = yearId;
+                    }
+
+                    $.ajax({
+                        url: 'get_students.php',
+                        type: 'GET',
+                        data: requestData,
+                        success: function(response) {
+                            const studentTable = $('#student-table');
+                            studentTable.empty();
+                            if (response.length > 0) {
+                                response.forEach((student, index) => {
+                                    const row = `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${student.StudentName}</td>
+                                    <td>${student.StudentNIM}</td>
+                                    <td>${student.MajorName}</td>
+                                    <td>${student.UniversityName}</td>
+                                </tr>
+                            `;
+                                    studentTable.append(row);
+                                });
+                            } else {
+                                studentTable.append('<tr><td colspan="5">No data found</td></tr>');
+                            }
+                        },
+                        error: function() {
+                            alert('Failed to fetch students.');
+                        }
+                    });
+                }
+            });
         });
-    });
-</script>
+    </script>
 
 </body>
 

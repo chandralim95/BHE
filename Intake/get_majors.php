@@ -20,37 +20,23 @@ try {
     die("Connection failed: " . $e->getMessage());
 }
 
-$students = [];
+$majors = [];
 
-if (isset($_GET['university_id']) && !empty($_GET['university_id'])) {
+if (isset($_GET['university_id']) && !empty($_GET['university_id']) && isset($_GET['year_id']) && !empty($_GET['year_id'])) {
     $universityId = $_GET['university_id'];
-    $query = "SELECT 
-        s.StudentID, 
-        s.StudentName, 
-        s.StudentNIM, 
-        m.MajorName, 
-        u.UniversityName 
-    FROM Students s
-    JOIN Majors m ON s.MajorID = m.MajorID
-    JOIN Universities u ON s.UniversityID = u.UniversityID
-    WHERE u.UniversityID = :universityId";
+    $yearId = $_GET['year_id'];
 
-    //Kalau tahun juga dipilih
-    if (isset($_GET['year_id']) && !empty($_GET['year_id'])) {
-        $yearId = $_GET['year_id'];
-        $query .= " AND s.YearID = :yearId";
-    }
+    $query = "SELECT DISTINCT m.MajorID, m.MajorName 
+              FROM Majors m
+              JOIN Students s ON m.MajorID = s.MajorID
+              WHERE s.UniversityID = :universityId AND s.YearID = :yearId";
 
     $stmt = $conn->prepare($query);
     $stmt->bindParam(':universityId', $universityId, PDO::PARAM_INT);
-
-    if (isset($yearId)) {
-        $stmt->bindParam(':yearId', $yearId, PDO::PARAM_INT);
-    }
-
+    $stmt->bindParam(':yearId', $yearId, PDO::PARAM_INT);
     $stmt->execute();
-    $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $majors = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 header('Content-Type: application/json');
-echo json_encode($students);
+echo json_encode($majors);
