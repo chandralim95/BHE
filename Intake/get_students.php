@@ -41,11 +41,19 @@ if (isset($_GET['university_id']) && !empty($_GET['university_id'])) {
         $query .= " AND s.YearID = :yearId";
     }
 
+    if (isset($_GET['major_id']) && !empty($_GET['major_id'])) {
+        $majorId = $_GET['major_id'];
+        $query .= " AND s.MajorID = :majorId";
+    }
+
     $stmt = $conn->prepare($query);
     $stmt->bindParam(':universityId', $universityId, PDO::PARAM_INT);
 
     if (isset($yearId)) {
         $stmt->bindParam(':yearId', $yearId, PDO::PARAM_INT);
+    }
+    if (isset($majorId)) {
+        $stmt->bindParam(':majorId', $majorId, PDO::PARAM_INT);
     }
 
     $stmt->execute();
