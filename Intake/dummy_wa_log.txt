@@ -8,3 +8,4 @@ To: 628977168889 - Message: 467713 - API Response: {"status":"200","message":"Su
 To: 628977168889 - Message: 144085 - API Response: {"status":"1005","message":"Kami gagal mengirimkan pesan dikarenakan ada masalah pada koneksi WhatsApp anda, mohon rekoneksikan ulang nomor WhatsApp anda.","ack":"fatal_error","wa_number":"628977168889"}
 To: 628977168889 - Message: 732575 - API Response: {"status":"200","message":"Successfully","worker_by":"O3j5viLxzHydtOEy","ack":"successfully"}
 To: 628977168889 - Message: 875200 - API Response: {"status":"200","message":"Successfully","worker_by":"O3j5viLxzHydtOEy","ack":"successfully"}
+To: 628977168889 - Message: 611729 - API Response: {"status":"200","message":"Successfully","worker_by":"O3j5viLxzHydtOEy","ack":"successfully"}
