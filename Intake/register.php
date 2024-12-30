@@ -5,6 +5,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email'];
     $phone_number = $_POST['phone_number'];
 
+    if (!str_starts_with($phone_number, '62')) {
+        $phone_number = '62' . $phone_number;
+    }
+
     if (empty($email) || empty($phone_number)) {
         echo json_encode(["status" => "error", "message" => "Email dan nomor WhatsApp wajib diisi"]);
         exit;
@@ -18,6 +22,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bindParam(':phone_number', $phone_number, PDO::PARAM_STR);
 
         $stmt->execute();
+
+        header("Location: index.php");
+        exit;
 
         echo json_encode(["status" => "success", "message" => "Registrasi berhasil!"]);
     } catch (PDOException $e) {

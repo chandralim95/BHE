@@ -25,8 +25,8 @@
                         <h3 style="color: gray; text-align: center;">Login</h3>
                         <label class="text text-danger" id="loginemailvalidation"></label>
                         <input id="login-email" type="text" name="loginemail" placeholder="Email">
-                        <label class=" text text-danger" id="loginpasswordvalidation"></label>
-                        <input id="login-password" type="password" name="loginpassword" placeholder="Password">
+                        <!-- <label class=" text text-danger" id="loginpasswordvalidation"></label>
+                        <input id="login-password" type="password" name="loginpassword" placeholder="Password"> -->
                         <input type="button" value="Login" id="btn-login" class="btn btn-primary" style="background-color: gray">
                     </form>
                 </div>
