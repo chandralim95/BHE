@@ -132,6 +132,10 @@ if ($stmt === false) {
         </table>
     </div>
 
+    <br>
+
+    <button id="send-whatsapp" class="btn btn-primary">Send to WhatsApp</button>
+
     <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
     <script src="../assets/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -242,6 +246,52 @@ if ($stmt === false) {
     });
 </script>
 
+<script>
+    $(document).ready(function () {
+    $('#send-whatsapp').on('click', function () {
+        // Ambil semua data dari tabel
+        let tableData = [];
+        $('#student-table tr').each(function () {
+            const row = $(this).find('td');
+            if (row.length) {
+                tableData.push({
+                    name: $(row[1]).text().trim(),
+                    nim: $(row[2]).text().trim(),
+                    major: $(row[3]).text().trim(),
+                    university: $(row[4]).text().trim()
+                });
+            }
+        });
+
+        if (tableData.length === 0) {
+            alert('No data available to send!');
+            return;
+        }
+
+        // Format pesan WhatsApp
+        let message = "Student Data:\n\n";
+        tableData.forEach((data, index) => {
+            message += `${index + 1}. ${data.name} (NIM: ${data.nim})\n    Jurusan: ${data.major}\n    Universitas: ${data.university}\n\n`;
+        });
+
+        // Dapatkan nomor WhatsApp user dari PHP
+        const userPhoneNumber = '<?= $_SESSION["user_phone_number"] ?? "" ?>';
+
+        if (!userPhoneNumber) {
+            alert('Phone number not available.');
+            return;
+        }
+
+        // Encode message untuk digunakan di URL
+        const encodedMessage = encodeURIComponent(message);
+
+        // Redirect ke WhatsApp Web
+        const whatsappUrl = `https://wa.me/${userPhoneNumber}?text=${encodedMessage}`;
+        window.open(whatsappUrl, '_blank');
+    });
+});
+
+</script>
 
 </body>
 

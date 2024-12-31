@@ -44,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $secretCode = rand(100000, 999999);
     $_SESSION['wa_secret_code'] = $secretCode;
     $_SESSION['email'] = $email;
+    $_SESSION['user_phone_number'] = $phoneNumber;
 
     $message = $secretCode;
 
